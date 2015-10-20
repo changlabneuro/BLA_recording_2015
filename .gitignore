@@ -1,6 +1,9 @@
 # Data directory
 data/
 
+# output files
+*.pdf
+
 # History files
 .Rhistory
 .Rapp.history

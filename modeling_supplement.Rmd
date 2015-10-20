@@ -1,0 +1,45 @@
+---
+title: "Supplementary Information: Models"
+author: "Steve Chang et al."
+date: "10/20/2015"
+output: pdf_document
+---
+
+# Hierarchical models for spike counts
+
+## Model 1
+
+Here, we model spike counts in the time window of interest as drawn from a Poisson distribution:
+$$
+\begin{aligned}
+N_i &\sim \mathrm{Poisson}(\lambda_i) \\
+\lambda_i &= \beta_{0 cu} + \beta_{1cu} R_i + \beta_{2cu} \tau_i 
+  + \beta_{3cu} R_i \tau_i \\
+  \beta_{j \cdot u} &\sim \mathrm{Normal}(\mu_{j}, \Sigma_j) \\
+  (\mu_j, \Sigma_j) &\sim \text{Normal-Inverse-Wishart}(\mu_{0j}, \lambda_j, \Psi_j, \nu_j)
+\end{aligned}
+$$
+with $N_i$ the spike count on trial $i$, $c(i)$ and $u(i)$ the choice (outcome type) and unit for that trial, $R_i$ the reward on the trial (coded as a percent of maximum) and $\tau_i$ the trial type (cued vs free choice). 
+
+In other words, we model the regression coefficients for each unit as drawn from multivariate normal distributions with mean $\mu$ and covariance $\Sigma$, and we are particularly interested in inferring these parameters for the entire population of cells.
+
+# To do:
+- non-additive trial type effects (cued vs choice treated as unrelated?)
+- negative binomial or added gaussian in linear predictor
+- model of separate subpopulations
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+summary(cars)
+```
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+plot(cars)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
