@@ -32,9 +32,11 @@ outcome <- countdata %>%
   select(trial, label)  %>% # keep trial and label columns only
   extract(label, c("cued", "outcome"), "(Cued)*([[:upper:]]{2,})")
 
-# further cleaning
+# further cleaning:
+# set cued to 0/1
 outcome$cued[is.na(outcome$cued)] <- 0
 outcome$cued[outcome$cued == "Cued"] <- 1
+# set outcome to lowercase
 outcome$outcome <- sapply(outcome$outcome, tolower)
 
 # now merge in new columns
