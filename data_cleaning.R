@@ -51,6 +51,22 @@ countdata <- countdata %>%
   mutate(RewardSize=RewardSize/(max(RewardSize) / 0.9)) %>%
   rename(reward=RewardSize)
 
+# add monkey identifier
+datobjs <- c("DATA_TbT_solly", "DATA_TbT_yerkes")
+monk_names <- c("Solly", "Yerkes")
+monk_frame <- data.frame()
+for (idx in 1:length(datobjs)) {
+  load(paste(datadir, datobjs[idx], sep=""))
+  monk_df <- as.data.frame(DATA_TbT)
+  id_df <- monk_df %>%
+    select(units) %>%
+    distinct() %>%
+    mutate(subj=monk_names[idx])
+  monk_frame <- rbind(monk_frame, id_df)
+}
+# add subject column to countdata; match is faster than naive merge
+countdata$subj <- monk_frame$subj[match(countdata$unit, monk_frame$units)]
+
 # save as R object
 outfile <- "countdata"
 save(file=paste(datadir, outfile, sep=""), list=c('countdata'))
