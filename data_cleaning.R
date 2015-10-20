@@ -44,6 +44,13 @@ countdata <- countdata %>%
   select(-matches("[[:upper:]]{2,}", ignore.case=FALSE)) %>%
   merge(outcome)
 
+# normalize reward data as percent of max for that unit
+# for some reason, the max observed is only 0.9 * MAX, so need to compensate
+countdata <- countdata %>%
+  group_by(unit) %>%
+  mutate(RewardSize=RewardSize/(max(RewardSize) / 0.9)) %>%
+  rename(reward=RewardSize)
+
 # save as R object
 outfile <- "countdata"
 save(file=paste(datadir, outfile, sep=""), list=c('countdata'))
