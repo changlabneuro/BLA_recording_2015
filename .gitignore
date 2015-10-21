@@ -3,6 +3,7 @@ data/
 
 # output files
 *.pdf
+*.rda
 
 # History files
 .Rhistory
