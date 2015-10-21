@@ -16,8 +16,9 @@ countvar <- "RewardOn_sp_count"
 
 # make variables
 count <- countdata[[countvar]]
-unit <- as.integer(countdata$unit)
+unit <- as.integer(as.factor(countdata$unit))
 type <- as.integer(countdata$outcome)
+rwd <- countdata$reward
 
 # get data ready for stan
 stan_dat <- list(N = length(count)[1],
@@ -25,11 +26,12 @@ stan_dat <- list(N = length(count)[1],
                  T = length(unique(type)),
                  c = count,
                  type = type,
-                 unit = unit
+                 unit = unit,
+                 reward = rwd
                  )
 
 # get ready to run stan
-watched_pars <- c("beta")
+watched_pars <- c("beta", "sens")
 fit <- stan(file = 'models/model0.stan', data = stan_dat, 
             pars = watched_pars,
             iter = 1000, chains = 4)
