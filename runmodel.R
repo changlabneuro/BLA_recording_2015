@@ -16,8 +16,8 @@ countvar <- "RewardOn_sp_count"
 
 # make variables
 count <- countdata[[countvar]]
-unit <- as.integer(as.factor(countdata$unit))
-type <- as.integer(as.factor(countdata$outcome))
+unit <- as.integer(countdata$unit)
+type <- as.integer(countdata$outcome)
 
 # get data ready for stan
 stan_dat <- list(N = length(count)[1],

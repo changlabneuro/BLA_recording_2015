@@ -38,6 +38,7 @@ outcome$cued[is.na(outcome$cued)] <- 0
 outcome$cued[outcome$cued == "Cued"] <- 1
 # set outcome to lowercase
 outcome$outcome <- sapply(outcome$outcome, tolower)
+outcome$outcome <- factor(outcome$outcome, c("none", "other", "self", "both"))
 
 # now merge in new columns
 countdata <- countdata %>%
