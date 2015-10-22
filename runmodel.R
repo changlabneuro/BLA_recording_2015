@@ -31,7 +31,7 @@ stan_dat <- list(N = length(count)[1],
                  )
 
 # get ready to run stan
-watched_pars <- c("beta", "sens", "mu_beta", "mu_sens", "sig_beta", "sig_sens")
-fit <- stan(file = 'models/model1.stan', data = stan_dat,
+watched_pars <- c("beta", "sens", "mu_beta", "mu_sens", "Sigma_beta", "Sigma_sens", "tau_beta", "tau_sens")
+fit <- stan(file = 'models/model2.stan', data = stan_dat,
             pars = watched_pars,
             iter = 1000, chains = 4)
