@@ -1,5 +1,5 @@
 # model0.stan
-# This model treats each unit as having a single firing rate for each outcome. 
+# This model treats each unit as having a single firing rate for each outcome.
 # Firing rates for different units and different outcomes are completely independent.
 # This is the model of Figure 3 in the main text.
 
@@ -13,7 +13,7 @@ data {
   real reward[N]; // relative reward on each trial
 }
 parameters {
-  real beta[U, T];  // baseline for each unit 
+  real beta[U, T];  // baseline for each unit
   real sens[U, T];  // sensitivity to reward size
 }
 transformed parameters {
@@ -21,7 +21,7 @@ transformed parameters {
   for (n in 1:N) {
     lp[n] <- beta[unit[n], type[n]] + reward[n] * sens[unit[n], type[n]];
   }
-} 
+}
 model {
   for (u in 1:U) {
     for (t in 1:T) {
