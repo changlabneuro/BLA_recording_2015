@@ -1,5 +1,5 @@
 # model0.stan
-# This model treats each unit as having a single firing rate for each outcome.
+# This model treats each unit as having a firing rate response proportional to reward.
 # Firing rates for different units and different outcomes are completely independent.
 # This is the model of Figure 3 in the main text.
 

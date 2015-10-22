@@ -1,5 +1,5 @@
 # model1.stan
-# This model treats each unit as having a single firing rate for each outcome.
+# This model treats each unit as having a firing rate response proportional to reward.
 # Firing rates for different outcomes are completely independent.
 # Firing rates for units are tied via a hierarchical prior.
 
