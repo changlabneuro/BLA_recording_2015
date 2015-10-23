@@ -9,7 +9,7 @@ options(mc.cores = parallel::detectCores())
 load("data/countdata")
 
 # subsample for testing
-countdata <- countdata[as.integer(as.factor(countdata$unit)) < 10,]
+#countdata <- countdata[as.integer(as.factor(countdata$unit)) < 10,]
 
 # first, pick the data we want to model
 countvar <- "RewardOn_sp_count"
@@ -31,8 +31,8 @@ stan_dat <- list(N = length(count)[1],
                  )
 
 # get ready to run stan
-watched_pars <- c("beta", "sens", "mu_beta", "mu_sens", "sig_beta", 
+watched_pars <- c("beta", "sens", "mu_beta", "mu_sens", "tau_beta", "Sigma_beta",
                   "Sigma_sens", "tau_sens", "theta", "sig_noise")
-fit <- stan(file = 'models/model3.stan', data = stan_dat,
+fit <- stan(file = 'models/model4.stan', data = stan_dat,
             pars = watched_pars,
             iter = 1000, chains = 4)
