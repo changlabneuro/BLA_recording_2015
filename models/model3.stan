@@ -1,4 +1,4 @@
-# model2.stan
+# model3.stan
 # This model treats each unit as having a firing rate response proportional to reward.
 # Baseline firing rates are drawn from a single distribution and are the same
 # for each outcome type.
@@ -37,7 +37,7 @@ transformed parameters {
 model {
   real lp[N];  // linear predictor for firing rate
   real bsens;  // mixture term for beta_sens
-  
+
   mu_beta ~ normal(0, 3);
   mu_sens ~ normal(0, 3);
   sig_beta ~ cauchy(0, 2.5);
@@ -48,8 +48,8 @@ model {
 
   for (u in 1:U) {
     beta[u] ~ normal(mu_beta, sig_beta);
-    bsens <- log_mix(theta, 
-      multi_normal_log(sens[u], mu_sens, quad_form_diag(Sigma_sens, tau_sens)), 
+    bsens <- log_mix(theta,
+      multi_normal_log(sens[u], mu_sens, quad_form_diag(Sigma_sens, tau_sens)),
       normal_log(sens[u], 0, sig_noise));
     increment_log_prob(bsens);
     #sens[u] ~ multi_normal(mu_sens, quad_form_diag(Sigma_sens, tau_sens));
@@ -58,7 +58,7 @@ model {
   for (n in 1:N) {
     lp[n] <- beta[unit[n]] + reward[n] * sens[unit[n]][type[n]];
   }
-  
+
   // observations
   for (n in 1:N) {
     c[n] ~ poisson(exp(lp[n]));
