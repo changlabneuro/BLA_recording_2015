@@ -19,20 +19,21 @@ count <- countdata[[countvar]]
 unit <- as.integer(as.factor(countdata$unit))
 type <- as.integer(countdata$outcome)
 rwd <- countdata$reward
+X <- model.matrix(as.formula("~ outcome + outcome * reward"), data=countdata)
 
 # get data ready for stan
 stan_dat <- list(N = length(count)[1],
                  U = length(unique(unit)),
                  T = length(unique(type)),
+                 P = dim(X)[2],
                  c = count,
                  type = type,
                  unit = unit,
-                 reward = rwd
+                 X = X
                  )
 
 # get ready to run stan
-watched_pars <- c("beta", "sens", "mu_beta", "mu_sens", "tau_beta", "Sigma_beta",
-                  "Sigma_sens", "tau_sens", "theta", "sig_noise")
-fit <- stan(file = 'models/model4.stan', data = stan_dat,
+watched_pars <- c("beta", "mu", "tau", "Sigma", "theta", "sig_noise")
+fit <- stan(file = 'models/model5.stan', data = stan_dat,
             pars = watched_pars,
             iter = 1000, chains = 4)
