@@ -16,7 +16,7 @@ data {
   row_vector[P] X[N]; // design vector for each trial
 }
 parameters {
-  vector[P] beta[U];  // regression coefficients for each unit
+  vector[P] beta_raw[U];  // N(0, 1) versions of params
   vector[P] mu;  // mean of population baseline
   vector<lower=0>[P] tau;  // scale of population baseline
   cholesky_factor_corr[P] L;  // Cholesky factor for covariance matrix
@@ -24,9 +24,14 @@ parameters {
 }
 transformed parameters {
   corr_matrix[P] Sigma;  // correlation matrix of sensitivities
+  vector[P] beta[U];  // regression coefficients for each unit
   
   Sigma <- L * L';
   
+  for (u in 1:U) {
+    beta[u] <- mu + diag_pre_multiply(tau, L) * beta_raw[u];
+  }
+
 }
 model {
   real lp[N];  // linear predictor for firing rate
@@ -37,7 +42,7 @@ model {
   nu ~ cauchy(0, 25);
 
   for (u in 1:U) {
-    beta[u] ~ multi_student_t(nu, mu, quad_form_diag(Sigma, tau));
+    beta_raw[u] ~ student_t(nu, 0, 1);
   }
 
   for (n in 1:N) {
