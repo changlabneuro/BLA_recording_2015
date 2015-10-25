@@ -18,7 +18,7 @@ countvar <- "RewardOn_sp_count"
 count <- countdata[[countvar]]
 unit <- as.integer(as.factor(countdata$unit))
 type <- as.integer(countdata$outcome)
-rwd <- countdata$reward / mean(countdata$reward)
+rwd <- countdata$reward 
 X <- model.matrix(as.formula("~ -1 + outcome + outcome : reward"), data=countdata)
 
 # get data ready for stan
@@ -34,6 +34,6 @@ stan_dat <- list(N = length(count)[1],
 
 # get ready to run stan
 watched_pars <- c("beta", "mu", "tau", "Sigma", "nu")
-fit <- stan(file = 'models/model6.stan', data = stan_dat,
-            pars = watched_pars,
-            iter = 2000, thin=2, chains = 4)
+ fit <- stan(file = 'models/model6.stan', data = stan_dat,
+             pars = watched_pars,
+             iter = 1000, thin=2, chains = 8)
