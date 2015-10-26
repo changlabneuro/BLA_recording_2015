@@ -12,15 +12,16 @@ load("data/countdata")
 #countdata <- countdata[as.integer(as.factor(countdata$unit)) < 10,]
 
 # first, pick the data we want to model
-countvar <- "RewardOn_sp_count"
+countvar <- "TargetAcquire_sp_count"
 
 # make variables
 count <- countdata[[countvar]]
 unit <- as.integer(as.factor(countdata$unit))
 type <- as.integer(countdata$outcome)
-rwd <- countdata$reward 
-X <- model.matrix(as.formula("~ -1 + outcome + outcome:reward + 
-                             outcome:cued + outcome:reward:cued"), data=countdata)
+rwd <- countdata$reward
+# X <- model.matrix(as.formula("~ -1 + outcome + outcome:reward +
+#                              outcome:cued + outcome:reward:cued"), data=countdata)
+X <- model.matrix(as.formula("~ -1 + outcome + outcome:reward"), data=countdata)
 
 # get data ready for stan
 stan_dat <- list(N = length(count)[1],
