@@ -37,3 +37,7 @@ watched_pars <- c("beta", "mu", "tau", "Sigma", "nu")
  fit <- stan(file = 'models/model6.stan', data = stan_dat,
              pars = watched_pars,
              iter = 1000, thin=2, chains = 8)
+
+# save fit object
+fname <- "fitobj_norm"
+save(file=fname, list='fit')
