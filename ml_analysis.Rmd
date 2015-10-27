@@ -1,0 +1,65 @@
+---
+title: "Maximum Likelihood Analysis"
+author: "Steve Chang et al."
+date: "October 27, 2015"
+output: pdf_document
+---
+```{r, echo=FALSE}
+# choose an epoch to analyze
+epoch <- "TargetAcquire_sp_count"
+epoch_name <- "Target Acquire"
+```
+
+# GLM Analysis
+By way of making contact with the GLM-based results in the main text, we model spike counts in the `r epoch_name` period.
+As in the main text, these counts are independently modeled for each outcome type and each unit according to the equation
+$$
+\begin{aligned}
+\log \lambda_{\omega, u} &= \beta_{0\omega} + \beta_{1\omega} * R \\
+N_i &\sim \mathrm{Poisson}(\lambda_{\omega (i) u(i)})
+\end{aligned}
+$$
+with $\omega$ indicating outcome type (none, other, both, self), $N_{i}$ the spike count on trial $i$, $\lambda_{\omega u}$ 
+the firing rate of unit $u$ for outcome $\omega$, and $R$ the delivered reward (coded as percent maximal reward).
+
+Now, how do the coefficients $\beta$ correspond across outcomes? 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(dplyr)
+library(tidyr)
+library(GGally)
+
+# load data
+load("data/countdata")
+
+# do a glm on each unit, outcome combo
+form <- as.formula(paste(epoch, "~ reward"))
+coefmat <- countdata %>% group_by(unit, outcome) %>%
+  do(coef=coef(glm(form, family=poisson(link="log"), data= .))) %>%
+  mutate(baseline=coef[1], slope=coef[2]) %>%
+  select(-coef)
+
+# munge data to get coefficients for each unit
+coef_wide <- coefmat %>% gather(coef, value, baseline:slope) %>%
+  unite(vname, outcome, coef, sep='.') %>%
+  spread(vname, value) %>%
+  select(-unit)
+
+# baseline
+ggpairs(coef_wide, columns=seq(1, 8, 2))
+
+# slope
+ggpairs(coef_wide, columns=seq(2, 8, 2))
+```
+
+Note the structure of these distributions: a sharp spike at 0, along with clear outliers (the tuned/sensitive cells). However, you should also see in the correlation plots that very few of these outliers are off the axes. That is, the sensitivities form a characteristic "star" pattern in which *only* one coefficient or the other is nonzero, but not both. **In other words, cells appear to be sensitive to only one type of outcome!** The population does not have mixed tuning, but is a mixture of different types of tuned cells.
+
+Now, consider the correlations between slopes and baselines for the different outcome types:
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+for (idx in 0:3) {
+  print(ggpairs(coef_wide, columns=c(2 * idx + 1, 2 * idx + 2)))
+}
+```
+
+Clearly, slopes and baselines are negatively correlated in each case, suggesting that reward sensitivity diminishes as baseline increases, perhaps due to bandwidth limitations.
