@@ -24,6 +24,17 @@ with $N_i$ the spike count on trial $i$, $c(i)$ and $u(i)$ the choice (outcome t
 In other words, we model the regression coefficients for each unit as drawn from multivariate normal distributions with mean $\mu$ and covariance $\Sigma$, and we are particularly interested in inferring these parameters for the entire population of cells.
 
 # To do:
+- effects of cuing in model
+- density plot of posteriors with units on top (via generated quantities in stan?)
+- are the same cells outliers in successive time periods?
+
+# Further models
+- model social decision as a function of spike counts (how to quantify performance on held-out data?)
+- quantify OT effects
+    - on choice
+    - on gaze
+
+# Bullpen
 - non-additive trial type effects (cued vs choice treated as unrelated?)
 - ~~negative binomial or added gaussian in linear predictor~~ seems unnecessary given low spike counts
 - model of separate subpopulations:
@@ -32,18 +43,3 @@ In other words, we model the regression coefficients for each unit as drawn from
         - positive tuning
         - noise (with mean constrained to 0 and perhaps diagonal $\Sigma$?; isotropic, even?)
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r}
-summary(cars)
-```
-
-You can also embed plots, for example:
-
-```{r, echo=FALSE}
-plot(cars)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
