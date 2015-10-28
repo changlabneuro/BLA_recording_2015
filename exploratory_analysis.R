@@ -11,9 +11,10 @@ load("data/countdata")
 # now fit a glm for each unit
 epoch <- "TargetAcquire_sp_count"
 form <- as.formula(paste(epoch, "~ reward"))
+family <- poisson(link="log")
 
 coefmat <- countdata %>% group_by(unit, outcome) %>%
-  do(coef=coef(glm(form, family=poisson(link="log"), data= .))) %>%
+  do(coef=coef(glm(form, family=family, data= .))) %>%
   mutate(baseline=coef[1], slope=coef[2]) %>%
   select(-coef)
 
@@ -27,3 +28,4 @@ coef_wide <- coefmat %>% gather(coef, value, baseline:slope) %>%
   select(-unit)
 
 ggpairs(coef_wide)
+
