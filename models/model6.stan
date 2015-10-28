@@ -25,9 +25,9 @@ parameters {
 transformed parameters {
   corr_matrix[P] Sigma;  // correlation matrix of sensitivities
   vector[P] beta[U];  // regression coefficients for each unit
-  
+
   Sigma <- L * L';
-  
+
   for (u in 1:U) {
     beta[u] <- mu + diag_pre_multiply(tau, L) * beta_raw[u];
   }
@@ -53,4 +53,14 @@ model {
   for (n in 1:N) {
     c[n] ~ poisson(exp(lp[n]));
   }
+}
+generated quantities {
+  vector[P] genbeta;
+  vector[P] genbeta_raw;
+
+  for (p in 1:P) {
+    genbeta_raw[p] <- student_t_rng(nu, 0, 1);
+  }
+
+  genbeta  <- mu + diag_pre_multiply(tau, L) * genbeta_raw;
 }
