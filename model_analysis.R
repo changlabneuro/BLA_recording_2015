@@ -34,11 +34,17 @@ names(genbeta) <- vnames
 # make pairs plot with density underlaid
 library(ggplot2)
 p <- ggpairs(pt_betas)
-for (r in 2:P) {
-  for (c in 1:(r - 1)) {
+for (r in 1:P) {
+  for (c in 1:r) {
     pp <- getPlot(p, r, c)  # get previous plot in this cell
-    gg <- geom_density2d(data=genbeta, aes_q(x=as.name(vnames[c]), y=as.name(vnames[r])))
-    p <- putPlot(p, pp + gg, r, c)
+    if (r == c) {
+      gg <- ggplot() + geom_density(data=genbeta, aes_q(x=as.name(vnames[c])), color='blue') +
+        geom_density(data=as.data.frame(pt_betas), aes_q(x=as.name(vnames[c])))
+      p <- putPlot(p, gg, r, c)
+    } else {
+      gg <- geom_density2d(data=genbeta, aes_q(x=as.name(vnames[c]), y=as.name(vnames[r])))  # density to add
+      p <- putPlot(p, pp + gg, r, c)
+    }
   }
 }
 p
