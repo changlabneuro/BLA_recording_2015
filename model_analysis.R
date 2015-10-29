@@ -7,7 +7,7 @@ library(rstan)
 load("data/countdata")
 
 # load model samples
-fname <- "fitobj_targacq_multi_t"
+fname <- "fitobj_targacq_multi_t_cued"
 load(fname)
 
 # calculate some useful quantities
@@ -16,7 +16,10 @@ P <- dim(X)[2]
 # TT <- length(unique(countdata$outcome))
 # vnames <- paste(rep(levels(countdata$outcome), each=P), rep(colnames(X), TT), sep='_')
 vnames <- colnames(X)
-vnames <- sub(':', '.', vnames)
+vnames <- gsub(':', '.', vnames)
+vnames <- gsub('outcome', '', vnames)
+vnames <- gsub('reward', 's', vnames)
+vnames <- gsub('cued', '', vnames)
 
 # make a scatter plot of betas
 fit_summary <- summary(fit, pars='beta')[[1]]
@@ -33,17 +36,25 @@ names(genbeta) <- vnames
 
 # make pairs plot with density underlaid
 library(ggplot2)
+library(GGally)
 p <- ggpairs(pt_betas)
 for (r in 1:P) {
-  for (c in 1:r) {
+  for (c in 1:P) {
     pp <- getPlot(p, r, c)  # get previous plot in this cell
     if (r == c) {
       gg <- ggplot() + geom_density(data=genbeta, aes_q(x=as.name(vnames[c])), color='blue') +
         geom_density(data=as.data.frame(pt_betas), aes_q(x=as.name(vnames[c])))
       p <- putPlot(p, gg, r, c)
-    } else {
+    } else if (r > c) {
       gg <- geom_density2d(data=genbeta, aes_q(x=as.name(vnames[c]), y=as.name(vnames[r])))  # density to add
       p <- putPlot(p, pp + gg, r, c)
+    } else {
+      var <- paste('Sigma[', r, ',', c,']', sep='')
+      dd <- data.frame(v=extract(fit, var)[[1]])
+      gg <- ggplot(data=as.data.frame(dd)) + geom_density(aes(x=v), color='red') + xlim(-1, 1)
+        theme(axis.title=element_blank())
+      #gg <- plot(fit, pars=var, point_est='median') + theme(axis.text.y=element_blank())
+      p <- putPlot(p, gg, r, c)
     }
   }
 }
