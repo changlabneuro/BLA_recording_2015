@@ -12,16 +12,35 @@ output: pdf_document
 Here, we model spike counts in the time window of interest as drawn from a Poisson distribution:
 $$
 \begin{aligned}
-N_i &\sim \mathrm{Poisson}(\lambda_i) \\
-\lambda_i &= \beta_{0 cu} + \beta_{1cu} R_i + \beta_{2cu} \tau_i 
-  + \beta_{3cu} R_i \tau_i \\
-  \beta_{j \cdot u} &\sim \mathrm{Normal}(\mu_{j}, \Sigma_j) \\
-  (\mu_j, \Sigma_j) &\sim \text{Normal-Inverse-Wishart}(\mu_{0j}, \lambda_j, \Psi_j, \nu_j)
+  N_i &\sim \mathrm{Poisson}(\lambda_i) \\
+  \log \lambda_i &= \beta_{0 cou} + \beta_{1cou} R_i \\
+  \beta_{\cdot \cdot u} &\sim \text{Multivariate-t}(\nu, \mu, \Sigma) \\
+  \mu &\sim \mathrm{Normal}(0, 2) \\
+  \Sigma &= (TL)(TL)^\top \\
+  T &= \mathrm{diag}(\tau) \\
+  \tau_j &\sim \mathrm{Cauchy}_+(0, 2.5) \\
+  L &\sim \mathrm{LKJCorr}(2) \\
+  \nu &\sim \mathrm{Cauchy}_+(0, 25) \\
 \end{aligned}
 $$
-with $N_i$ the spike count on trial $i$, $c(i)$ and $u(i)$ the choice (outcome type) and unit for that trial, $R_i$ the reward on the trial (coded as a percent of maximum) and $\tau_i$ the trial type (cued vs free choice). 
+with $N_i$ the spike count on trial $i$; $c(i)$, $o(i)$, and $u(i)$ the cuing (free choice vs cued), 
+outcome (neither, other, both, self), and unit for that trial; and $R_i$ the reward on the trial 
+(coded as a percent of maximum).
 
-In other words, we model the regression coefficients for each unit as drawn from multivariate normal distributions with mean $\mu$ and covariance $\Sigma$, and we are particularly interested in inferring these parameters for the entire population of cells.
+More specifically:
+
+- Regression coefficients for each unit are drawn from a multivariate $t$ distribution with mean $\mu$ and 
+covariance $\Sigma$. We use a $t$ distribution both because the empirical distribution of coefficients is 
+leptokurtic (high-peaked and heavy-tailed) and because estimation using the $t$ is more robust to the 
+presence of outliers.
+- We use a Cholesky factorization for the covariance matrix, with $T$ a diagonal matrix of variable scale 
+parameters and $L$ a lower triangular matrix with LKJCorr prior\footnote{cf. Section 50.1 of the Stan Manual 
+v.2.8.0 and references therein.}. That is, the correlation matrix $C = LL^\top$.
+- For the degrees of freedom $\nu$ and scales $\tau_j$, we use weakly informative half-Cauchy (restricted to the 
+positive half plane) priors.
+
+Given this model, we are particularly interested in inferring $\mu$ and $\Sigma$, the mean and covariance of the
+population of cells from which our experimental sample was drawn.
 
 # To do:
 - effects of cuing in model
@@ -29,7 +48,8 @@ In other words, we model the regression coefficients for each unit as drawn from
 - are the same cells outliers in successive time periods?
 
 # Further models
-- model social decision as a function of spike counts (how to quantify performance on held-out data?)
+- model social decision as a function of spike counts 
+    - use Vehtari and Gelman paper for calculating expected log likelihood (or posterior) of heldout data in stan
 - quantify OT effects
     - on choice
     - on gaze
