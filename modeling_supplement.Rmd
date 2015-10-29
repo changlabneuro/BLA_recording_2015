@@ -25,7 +25,7 @@ In other words, we model the regression coefficients for each unit as drawn from
 
 # To do:
 - effects of cuing in model
-- density plot of posteriors with units on top (via generated quantities in stan?)
+- ~~density plot of posteriors with units on top (via generated quantities in stan?)~~
 - are the same cells outliers in successive time periods?
 
 # Further models
