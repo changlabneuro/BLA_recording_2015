@@ -46,12 +46,13 @@ for (r in 1:P) {
         geom_density(data=as.data.frame(pt_betas), aes_q(x=as.name(vnames[c])))
       p <- putPlot(p, gg, r, c)
     } else if (r > c) {
-      gg <- geom_density2d(data=genbeta, aes_q(x=as.name(vnames[c]), y=as.name(vnames[r])))  # density to add
-      p <- putPlot(p, pp + gg, r, c)
+      # gg <- geom_density2d(data=genbeta, aes_q(x=as.name(vnames[c]), y=as.name(vnames[r])))  # density to add
+      pp$layers <- c(geom_density2d(data=genbeta, aes_q(x=as.name(vnames[c]), y=as.name(vnames[r]))), pp$layers)  # density to add
+      p <- putPlot(p, pp, r, c)
     } else {
       var <- paste('Sigma[', r, ',', c,']', sep='')
       dd <- data.frame(v=rstan::extract(fit, var)[[1]])
-      gg <- ggplot(data=as.data.frame(dd)) + geom_density(aes(x=v), color='red') + xlim(-1, 1)
+      gg <- ggplot(data=as.data.frame(dd)) + geom_vline(xintercept=0) + geom_density(aes(x=v), color='red') + xlim(-1, 1)
         theme(axis.title=element_blank())
       #gg <- plot(fit, pars=var, point_est='median') + theme(axis.text.y=element_blank())
       p <- putPlot(p, gg, r, c)
