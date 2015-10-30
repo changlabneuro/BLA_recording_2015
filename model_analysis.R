@@ -50,7 +50,7 @@ for (r in 1:P) {
       p <- putPlot(p, pp + gg, r, c)
     } else {
       var <- paste('Sigma[', r, ',', c,']', sep='')
-      dd <- data.frame(v=extract(fit, var)[[1]])
+      dd <- data.frame(v=rstan::extract(fit, var)[[1]])
       gg <- ggplot(data=as.data.frame(dd)) + geom_density(aes(x=v), color='red') + xlim(-1, 1)
         theme(axis.title=element_blank())
       #gg <- plot(fit, pars=var, point_est='median') + theme(axis.text.y=element_blank())
