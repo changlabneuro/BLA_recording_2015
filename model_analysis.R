@@ -37,24 +37,22 @@ names(genbeta) <- vnames
 # make pairs plot with density underlaid
 library(ggplot2)
 library(GGally)
-p <- ggpairs(pt_betas)
+p <- ggpairs(pt_betas) + theme_bw()
 for (r in 1:P) {
   for (c in 1:P) {
     pp <- getPlot(p, r, c)  # get previous plot in this cell
     if (r == c) {
       gg <- ggplot() + geom_density(data=genbeta, aes_q(x=as.name(vnames[c])), color='blue') +
-        geom_density(data=as.data.frame(pt_betas), aes_q(x=as.name(vnames[c])))
+        geom_density(data=as.data.frame(pt_betas), aes_q(x=as.name(vnames[c]))) + theme_bw()
       p <- putPlot(p, gg, r, c)
     } else if (r > c) {
-      # gg <- geom_density2d(data=genbeta, aes_q(x=as.name(vnames[c]), y=as.name(vnames[r])))  # density to add
-      pp$layers <- c(geom_density2d(data=genbeta, aes_q(x=as.name(vnames[c]), y=as.name(vnames[r]))), pp$layers)  # density to add
+      newplot <- geom_density2d(data=genbeta, aes_q(x=as.name(vnames[c]), y=as.name(vnames[r])))
+      pp$layers <- c(newplot, pp$layers)  # density to add
       p <- putPlot(p, pp, r, c)
     } else {
       var <- paste('Sigma[', r, ',', c,']', sep='')
       dd <- data.frame(v=rstan::extract(fit, var)[[1]])
-      gg <- ggplot(data=as.data.frame(dd)) + geom_vline(xintercept=0) + geom_density(aes(x=v), color='red') + xlim(-1, 1)
-        theme(axis.title=element_blank())
-      #gg <- plot(fit, pars=var, point_est='median') + theme(axis.text.y=element_blank())
+      gg <- ggplot(data=as.data.frame(dd)) + geom_vline(xintercept=0) + geom_density(aes(x=v), color='red') + xlim(-1, 1) + theme_bw()
       p <- putPlot(p, gg, r, c)
     }
   }
