@@ -124,7 +124,7 @@ with $p$ the probability of a prosocial choice and $n$ the observed spike count 
 source("predict_choices.R")
 ```
 
-Our model utilized an $L_1$ (absolute value) penalty on the coefficient $\beta_1$, with the area under the curve (AUC) of the receiver operating characteristic (ROC) as the measure of model accuracy. We considered a unit "Significantly" predictive of choice behavior when its mean AUC differed significantly from 0.5 (one-tailed $t$-test, $df$=4). We excluded any unit with fewer than 100 trials, and found that `r ngood` of `r ntot` cells, or `r round(ngood/ntot, digits=2) * 100`%, significantly predicted upcoming choice. 
+Our model utilized an $L_1$ (absolute value) penalty on the coefficient $\beta_1$, with the area under the curve (AUC) of the receiver operating characteristic (ROC) as the measure of model accuracy. We considered a unit "Significantly" predictive of choice behavior when both its mean AUC differed significantly from 0.5 (one-tailed $t$-test, $df$=4) and its $\beta_1$ coefficient remained nonzero in the model.\footnote{The first of these conditions requires the model to perform better than chance, the second that the model with spike counts included outperforms the baseline model (a constant $p$) on heldout data.} We excluded any unit with fewer than 100 trials, and found that `r ngood` of `r ntot` cells, or `r round(ngood/ntot, digits=2) * 100`%, significantly predicted upcoming choice. 
 
 # To do:
 - ~~effects of cuing in model~~
