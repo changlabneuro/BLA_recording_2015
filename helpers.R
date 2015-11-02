@@ -18,7 +18,7 @@ pairplot <- function(pt_estimates, density_samples, variance_samples, indices) {
 
   vnames <- names(pt_estimates)[indices]
   P <- length(vnames)
-  p <- ggpairs(pt_betas[, indices]) + theme_bw()
+  p <- ggpairs(pt_betas[, indices], axisLabels = "none") + theme_bw()
 
   for (r in 1:P) {
     for (c in 1:P) {
@@ -40,4 +40,15 @@ pairplot <- function(pt_estimates, density_samples, variance_samples, indices) {
     }
   }
   return(p)
+}
+
+fixlabels <- function(v=c(-0.5, 1.5)){
+  g <- grid.ls(print=FALSE)
+  idx <- g$name[grep("text", g$name)]
+  for(i in 1:length(idx)) {
+    if (i <= length(idx)/2)
+      grid.edit(gPath(idx[i]), vjust=v[1])
+    else
+      grid.edit(gPath(idx[i]), vjust=v[2])
+  }
 }
