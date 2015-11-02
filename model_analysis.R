@@ -34,28 +34,9 @@ pairs(pt_betas)
 genbeta <- as.data.frame(rstan::extract(fit, pars="genbeta")[[1]])
 names(genbeta) <- vnames
 
-# make pairs plot with density underlaid
-library(ggplot2)
-library(GGally)
-p <- ggpairs(pt_betas) + theme_bw()
-for (r in 1:P) {
-  for (c in 1:P) {
-    pp <- getPlot(p, r, c)  # get previous plot in this cell
-    if (r == c) {
-      gg <- ggplot() + geom_density(data=genbeta, aes_q(x=as.name(vnames[c])), color='blue') +
-        geom_density(data=as.data.frame(pt_betas), aes_q(x=as.name(vnames[c]))) + theme_bw()
-      p <- putPlot(p, gg, r, c)
-    } else if (r > c) {
-      newplot <- geom_density2d(data=genbeta, aes_q(x=as.name(vnames[c]), y=as.name(vnames[r])))
-      pp$layers <- c(newplot, pp$layers)  # density to add
-      p <- putPlot(p, pp, r, c)
-    } else {
-      var <- paste('Sigma[', r, ',', c,']', sep='')
-      dd <- data.frame(v=rstan::extract(fit, var)[[1]])
-      gg <- ggplot(data=as.data.frame(dd)) + geom_vline(xintercept=0) + geom_density(aes(x=v), color='red') + xlim(-1, 1) + theme_bw()
-      p <- putPlot(p, gg, r, c)
-    }
-  }
-}
+# make pairs plot with density
+dd <- data.frame(v=rstan::extract(fit, pars='Sigma')[[1]])
+source("helpers.R")
+p <- pairplot(as.data.frame(pt_betas), genbeta, dd, seq(9, 12))
 p
 
