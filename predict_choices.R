@@ -31,6 +31,13 @@ countvar <- "TargetAcquire_sp_count"
 # model to train
 form <- as.formula(paste(" ~ ", countvar))
 
+# NB:
+# It's a little odd to use the formua above, which includes a constant, when
+# glmnet already assumes one. In fact, the constant above will be penalized,
+# while the glmnet constant is not (by default). However, glmnet requires at
+# least two regressors to run, so we just throw in the extra constant,
+# knowing it will get thrown out.
+
 # define function to train glm
 train_glm <- function(df, nfolds) {
   folds <- partition_data(df$y, nfolds)
