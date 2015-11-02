@@ -2,12 +2,14 @@
 title: "Supplementary Information: Models"
 author: "Steve Chang et al."
 date: "10/20/2015"
-output: pdf_document
+output: 
+  pdf_document:
+    fig_caption: yes        
 ---
 
 # Hierarchical models for spike counts
 
-## Model 1
+## Model
 
 Here, we model spike counts in the time window of interest as drawn from a Poisson distribution:
 $$
@@ -41,6 +43,71 @@ positive half plane) priors.
 
 Given this model, we are particularly interested in inferring $\mu$ and $\Sigma$, the mean and covariance of the
 population of cells from which our experimental sample was drawn.
+
+## Results
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(rstan)
+source("helpers.R")
+
+# load original data
+load("data/countdata")
+
+# load model samples
+fname <- "fitobj_targacq_multi_t_cued"
+load(fname)
+
+# calculate some useful quantities
+U <- length(unique(countdata$unit))
+P <- dim(X)[2]
+
+# names for plotting
+vnames <- colnames(X)
+vnames <- gsub(':', '.', vnames)
+vnames <- gsub('outcome', '', vnames)
+vnames <- gsub('reward', 's', vnames)
+vnames <- gsub('cued', '', vnames)
+
+# get point estimates of betas
+fit_summary <- summary(fit, pars='beta')[[1]]
+pt_betas <- fit_summary[,6]  # medians
+dim(pt_betas) <- c(P, U)
+pt_betas <- as.data.frame(t(pt_betas))
+names(pt_betas) <- vnames
+
+# get samples from posterior for beta
+genbeta <- as.data.frame(rstan::extract(fit, pars="genbeta")[[1]])
+names(genbeta) <- vnames
+
+# get samples of posterior variance
+varsamples <- data.frame(v=rstan::extract(fit, pars='Sigma')[[1]])
+```
+Figures blah blah, bhal
+
+```{r, dev='pdf', echo=FALSE, fig.width=8, fig.height=6, fig.cap="Correlations between sensitivities to distinct outcomes (Choice)."}
+p <- pairplot(as.data.frame(pt_betas), genbeta, varsamples, seq(9, 12))
+p
+```
+
+```{r, dev='pdf', echo=FALSE, fig.keep="last", fig.width=8, fig.height=6, fig.cap="Correlations between sensitivities to distinct outcomes (Cued)."}
+p <- pairplot(as.data.frame(pt_betas), genbeta, varsamples, seq(13, 16))
+p
+
+# change labels
+g <- grid.ls(print=FALSE)
+idx <- g$name[grep("text", g$name)]
+for(i in 1:length(idx)) {
+  if (i <= length(idx)/2)
+    grid.edit(gPath(idx[i]), vjust=-.5)
+  else
+    grid.edit(gPath(idx[i]), vjust=1.5)
+}
+```
+
+```{r, dev='pdf', echo=FALSE, fig.width=8, fig.height=6, fig.cap="Correlations between sensitivities (all trial types)."}
+p <- pairplot(as.data.frame(pt_betas), genbeta, varsamples, seq(9, 16))
+p
+```
 
 # To do:
 - ~~effects of cuing in model~~
