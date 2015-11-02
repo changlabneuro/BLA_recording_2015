@@ -9,6 +9,8 @@ output:
 
 # Hierarchical models for spike counts
 
+To properly move from characterization of individual neurons to population inferences, we make use of a hierarchical Bayesian approach. Hierarchical models have the advantage of "borrowing" statistical strength across units, both regularizing fits in cases of limited data and leading to robust inferences of population statistics. Moreover, by treating both population and individual variability within a single Bayesian model, we avoid problems with multiple comparisons and a proliferation of models fit to subsets of the data.
+
 ## Model
 
 Here, we model spike counts in the time window of interest as drawn from a Poisson distribution:
@@ -43,6 +45,10 @@ positive half plane) priors.
 
 Given this model, we are particularly interested in inferring $\mu$ and $\Sigma$, the mean and covariance of the
 population of cells from which our experimental sample was drawn.
+
+## Simulation
+
+We used the modeling language [Stan](http://www.mc-stan.org) to perform Markov Chain Monte Carlo sampling. Our simulation comprised 8 chains run for 1000 samples each, half of which were discarded as burn-in, for a total of 2000 samples. Both $\hat{R}$ and effective sample sizes for the simulation were consistent with efficient sampling. Post-processing was performed by means of the `rstan` library for R.
 
 ## Results
 
@@ -82,32 +88,43 @@ names(genbeta) <- vnames
 # get samples of posterior variance
 varsamples <- data.frame(v=rstan::extract(fit, pars='Sigma')[[1]])
 ```
-Figures blah blah, bhal
+Results from the model above are shown in Figures 1 - 3. Baseline firing rates are strongly correlated across all conditions (not shown), while covariance among reward sensitivities differs between cued and uncued (choice) trial types. As Figure 1 shows, estimates of the population distribution based on the observed single units give strong evidence for positive correlations between outcome pairs (Other, Both), (Other, Self), and (Both, Self), with other correlations either weak (None, Self) or centered around 0. By contrast, in Figure 2, correlations among unit sensitivities in cued trials are mostly nonexistent, with only weak evidence for correlation between outcomes Other and Self. Finally, Figure 3 shows the full correlation plot for all reward sensitivities across both conditions. In addition to containing the information in Figures 1 and 2, this plot shows evidence for weak positive correlations between Other (Cued) and and Self, Both, and Other (Choice). 
 
-```{r, dev='pdf', echo=FALSE, fig.width=8, fig.height=6, fig.cap="Correlations between sensitivities to distinct outcomes (Choice)."}
+```{r, dev='pdf', echo=FALSE, fig.keep="last", fig.width=8, fig.height=6, fig.cap="Correlations between reward sensitivities to distinct outcomes (Choice). Plots in the lower triangle show point estimates for individual units (medians; black) and population posterior densities (blue) for pairs of regression effects. Diagonal plots show marginal densities for unit point estimates (black) and population (blue). Plots in the upper triangle show posterior densities for elements of the population correlation matrix between variables (red). The vertical line (black) marks correlation coefficient 0." }
 p <- pairplot(as.data.frame(pt_betas), genbeta, varsamples, seq(9, 12))
 p
+fixlabels()
 ```
 
-```{r, dev='pdf', echo=FALSE, fig.keep="last", fig.width=8, fig.height=6, fig.cap="Correlations between sensitivities to distinct outcomes (Cued)."}
+```{r, dev='pdf', echo=FALSE, fig.keep="last", fig.width=8, fig.height=6, fig.cap="Correlations between sensitivities to distinct outcomes (Cued). Conventions are as in Figure 1."}
 p <- pairplot(as.data.frame(pt_betas), genbeta, varsamples, seq(13, 16))
 p
 
 # change labels
-g <- grid.ls(print=FALSE)
-idx <- g$name[grep("text", g$name)]
-for(i in 1:length(idx)) {
-  if (i <= length(idx)/2)
-    grid.edit(gPath(idx[i]), vjust=-.5)
-  else
-    grid.edit(gPath(idx[i]), vjust=1.5)
-}
+fixlabels()
 ```
 
-```{r, dev='pdf', echo=FALSE, fig.width=8, fig.height=6, fig.cap="Correlations between sensitivities (all trial types)."}
+```{r, dev='pdf', echo=FALSE, fig.keep="last", fig.width=8, fig.height=6, fig.cap="Correlations between sensitivities (all trial types). Conventions as in Figure 1."}
 p <- pairplot(as.data.frame(pt_betas), genbeta, varsamples, seq(9, 16))
 p
+fixlabels(c(-0.75, 1.5))
 ```
+
+# Predicting Prosocial Choices
+
+In addition to characterizing firing rates in response to different reward outcomes, we also asked whether firing rates in single units predicted upcoming choice (binarized as prosocial (both, other) or antisocial (none, self)). To do so, we used a cross-validation approach in which we partitioned the data (spike counts in the Target Acquire epoch) for each cell, using 80% of the data for training and the remaining 20% for test. We then repeated this process 5 fives, each time holding out a distinct subset of the training data (5-fold cross-validation). This process then yielded five measures of a model's predictive performance per unit, allowing us to estimate a mean and standard deviation.
+
+We modeled the observed pro-/anti-social outcome of each trial as a penalized logistic regression (LASSO) using the R package `glmnet`:
+$$
+\log \frac{p}{1 - p} \sim \beta_0 + \beta_1 n
+$$
+with $p$ the probability of a prosocial choice and $n$ the observed spike count in the epoch of interest on that trial. 
+
+```{r, echo=FALSE, message=FALSE}
+source("predict_choices.R")
+```
+
+Our model utilized an $L_1$ (absolute value) penalty on the coefficient $\beta_1$, with the area under the curve (AUC) of the receiver operating characteristic (ROC) as the measure of model accuracy. We considered a unit "Significantly" predictive of choice behavior when its mean AUC differed significantly from 0.5 (one-tailed $t$-test, $df$=4). We excluded any unit with fewer than 100 trials, and found that `r ngood` of `r ntot` cells, or `r round(ngood/ntot, digits=2) * 100`%, significantly predicted upcoming choice. 
 
 # To do:
 - ~~effects of cuing in model~~
