@@ -51,12 +51,14 @@ train_glm <- function(df, nfolds) {
 }
 
 # find auc for each unit, filter for those with good enough zscore
-thresh <- qnorm(0.95)
+nfolds <- 5
+# thresh <- qnorm(0.95)
+thresh <- qt(0.95, nfolds-1)
 auc <- countdata %>%
   mutate(y=outcome %in% c("other", "both")) %>%
   select_("unit", countvar, "y", "reward") %>%
   group_by(unit) %>%
-  do(res = train_glm(., 5)) %>%
+  do(res = train_glm(., nfolds)) %>%
   filter(!is.na(res[1])) %>%
   mutate(mean=res[1], sd=res[2]) %>%
   filter(mean - thresh * sd > 0.5)
