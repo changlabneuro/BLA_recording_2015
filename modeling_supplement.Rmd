@@ -126,25 +126,15 @@ source("predict_choices.R")
 
 Our model utilized an $L_1$ (absolute value) penalty on the coefficient $\beta_1$, with the area under the curve (AUC) of the receiver operating characteristic (ROC) as the measure of model accuracy. We considered a unit "Significantly" predictive of choice behavior when both its mean AUC differed significantly from 0.5 (one-tailed $t$-test, $df$=4) and its $\beta_1$ coefficient remained nonzero in the model.\footnote{The first of these conditions requires the model to perform better than chance, the second that the model with spike counts included outperforms the baseline model (a constant $p$) on heldout data.} We excluded any unit with fewer than 100 trials, and found that `r ngood` of `r ntot` cells, or `r round(ngood/ntot, digits=2) * 100`%, significantly predicted upcoming choice. 
 
-# To do:
+# To do?:
 - ~~effects of cuing in model~~
 - ~~density plot of posteriors with units on top (via generated quantities in stan?)~~
 - are the same cells outliers in successive time periods?
 
-# Further models
+# Further models?
 - model social decision as a function of spike counts 
     - ~~use glmnet for prediction~~
-    - use Vehtari and Gelman paper for calculating expected log likelihood (or posterior) of heldout data in stan
 - quantify OT effects
     - on choice
     - on gaze
-
-# Bullpen
-- non-additive trial type effects (cued vs choice treated as unrelated?)
-- ~~negative binomial or added gaussian in linear predictor~~ seems unnecessary given low spike counts
-- model of separate subpopulations:
-    - three groups:
-        - negative tuning
-        - positive tuning
-        - noise (with mean constrained to 0 and perhaps diagonal $\Sigma$?; isotropic, even?)
 
