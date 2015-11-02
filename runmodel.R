@@ -1,6 +1,8 @@
 # runmodel.R
 # code for fitting models
 
+set.seed(12345)
+
 library(rstan)
 rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores())
