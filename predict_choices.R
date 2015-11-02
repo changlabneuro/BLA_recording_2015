@@ -46,8 +46,8 @@ train_glm <- function(df, nfolds) {
               type.measure = "auc", foldid = folds)
     maxlambda <- fit$lambda.1se
     maxind <- which(fit$lambda == fit$lambda.1se)
-    return(c(fit$cvm[maxind], fit$cvsd[maxind]))
-  }, error=function(e) {return(c(NA, NA))})
+    return(c(fit$cvm[maxind], fit$cvsd[maxind], coef(fit)[countvar,]))
+  }, error=function(e) {return(c(NA, NA, NA))})
 }
 
 # find auc for each unit, filter for those with good enough zscore
@@ -60,8 +60,9 @@ auc <- countdata %>%
   group_by(unit) %>%
   do(res = train_glm(., nfolds)) %>%
   filter(!is.na(res[1])) %>%
-  mutate(mean=res[1], sd=res[2]) %>%
-  filter(mean - thresh * sd > 0.5)
+  mutate(mean=res[1], sd=res[2], slope=res[3]) %>%
+  filter(mean - thresh * sd > 0.5) %>%
+  filter(slope != 0)
 
 ngood <- nrow(auc)
 ntot <- length(unique(countdata$unit))
