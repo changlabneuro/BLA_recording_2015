@@ -7,7 +7,7 @@ library(rstan)
 countdata <- read.csv("data/countdata.csv")
 
 # load model samples
-fname <- "outputs/fitobj_targacq_multi_t_cued"
+fname <- "outputs/fitobj_targacq_multi_t"
 load(fname)
 
 # calculate some useful quantities
