@@ -6,6 +6,9 @@ output:
   pdf_document:
     fig_caption: yes        
 ---
+# Reproducibility
+
+Data, along with modeling and analysis code related to this supplement (including the generation of this document) is publically available at [https://github.com/jmxpearson/chang_et_al_2015](https://github.com/jmxpearson/chang_et_al_2015).
 
 # Hierarchical models for spike counts
 
@@ -33,12 +36,12 @@ outcome (neither, other, both, self), and unit for that trial; and $R_i$ the rew
 
 More specifically:
 
-- Regression coefficients for each unit are drawn from a multivariate $t$ distribution with mean $\mu$ and 
+- Regression coefficients for each unit are drawn from a (population-level) multivariate $t$ distribution with mean $\mu$ and 
 covariance $\Sigma$. We use a $t$ distribution both because the empirical distribution of coefficients is 
 leptokurtic (high-peaked and heavy-tailed) and because estimation using the $t$ is more robust to the 
 presence of outliers.
 - We use a Cholesky factorization for the covariance matrix, with $T$ a diagonal matrix of variable scale 
-parameters and $L$ a lower triangular matrix with LKJCorr prior\footnote{cf. Section 50.1 of the Stan Manual 
+parameters and $L$ a lower triangular matrix with LKJCorr prior\footnote{cf. Section 50.1 of the [Stan Reference Manual](http://mc-stan.org/documentation/) 
 v.2.8.0 and references therein.}. That is, the correlation matrix $C = LL^\top$.
 - For the degrees of freedom $\nu$ and scales $\tau_j$, we use weakly informative half-Cauchy (restricted to the 
 positive half plane) priors.
@@ -88,9 +91,10 @@ names(genbeta) <- vnames
 # get samples of posterior variance
 varsamples <- data.frame(v=rstan::extract(fit, pars='Sigma')[[1]])
 ```
-Results from the model above are shown in Figures 1 - 3. Baseline firing rates are strongly correlated across all conditions (not shown), while covariance among reward sensitivities differs between cued and uncued (choice) trial types. As Figure 1 shows, estimates of the population distribution based on the observed single units give strong evidence for positive correlations between outcome pairs (Other, Both), (Other, Self), and (Both, Self), with other correlations either weak (None, Self) or centered around 0. By contrast, in Figure 2, correlations among unit sensitivities in cued trials are mostly nonexistent, with only weak evidence for correlation between outcomes Other and Self. Finally, Figure 3 shows the full correlation plot for all reward sensitivities across both conditions. In addition to containing the information in Figures 1 and 2, this plot shows evidence for weak positive correlations between Other (Cued) and and Self, Both, and Other (Choice). 
+Results from the model above are shown in Figures 1 - 3. Baseline firing rates are strongly correlated across all conditions (not shown), while covariance among reward sensitivities differs between cued and uncued (choice) trial types. As Figure 1 shows, estimates of the population distribution based on the observed single units give strong evidence for positive correlations between outcome pairs (Other, Both), (Other, Self), and (Both, Self), with other correlations either weak (None, Self) or centered around 0. By contrast, in Figure 2, correlations among unit sensitivities in cued trials are mostly nonexistent, with only weak evidence for correlation between outcomes Other and Self. Finally, Figure 3 shows the full correlation plot for all reward sensitivities across both conditions. In addition to containing the information in Figures 1 and 2, this plot shows evidence for weak positive correlations between Other (Cued) and Self, Both, and Other (Choice). Note especially that correlations between None and other outcomes are in all cases weaker, with substantial posterior mass around 0 correlation.
 
-```{r, dev='pdf', echo=FALSE, fig.keep="last", fig.width=8, fig.height=6, fig.cap="Correlations between reward sensitivities to distinct outcomes (Choice). Plots in the lower triangle show point estimates for individual units (medians; black) and population posterior densities (blue) for pairs of regression effects. Diagonal plots show marginal densities for unit point estimates (black) and population (blue). Plots in the upper triangle show posterior densities for elements of the population correlation matrix between variables (red). The vertical line (black) marks correlation coefficient 0." }
+```{r, dev='pdf', echo=FALSE, fig.keep="last", fig.width=8, fig.height=6, fig.cap="Correlations between reward sensitivities to distinct outcomes (Choice). Plots in the lower triangle show point estimates for individual units (medians; black) and population posterior densities (blue) for pairs of regression effects. Diagonal plots show marginal densities for unit point estimates (black) and population (blue). Plots in the upper triangle show posterior densities for elements of the population correlation matrix between variables (red). The vertical line (black) marks correlation coefficient 0. Variable names take the form `<outcome>[.s].<cue>` with `<outcome>` the reward type, `.s` indicating a sensitivity parameter, and `<cued>`=0 for  choice trials and 1 for cued trials."}
+
 p <- pairplot(as.data.frame(pt_betas), genbeta, varsamples, seq(9, 12))
 p
 fixlabels()
@@ -112,7 +116,7 @@ fixlabels(c(-0.75, 1.5))
 
 # Predicting Prosocial Choices
 
-In addition to characterizing firing rates in response to different reward outcomes, we also asked whether firing rates in single units predicted upcoming choice (binarized as prosocial (both, other) or antisocial (none, self)). To do so, we used a cross-validation approach in which we partitioned the data (spike counts in the Target Acquire epoch) for each cell, using 80% of the data for training and the remaining 20% for test. We then repeated this process 5 fives, each time holding out a distinct subset of the training data (5-fold cross-validation). This process then yielded five measures of a model's predictive performance per unit, allowing us to estimate a mean and standard deviation.
+In addition to characterizing firing rates in response to different reward outcomes, we also asked whether firing rates in single units predicted upcoming choice (binarized as prosocial (both, other) or antisocial (none, self)). To do so, we used a cross-validation approach in which we partitioned the data (spike counts in the Target Acquire epoch) for each cell, using 80% of the data for training and the remaining 20% for test. We then repeated this process 5 fives, each time holding out a distinct subset of the training data (5-fold cross-validation). This process then yielded five measures of a model's predictive performance, allowing us to estimate a mean and standard deviation per unit.
 
 We modeled the observed pro-/anti-social outcome of each trial as a penalized logistic regression (LASSO) using the R package `glmnet`:
 $$
@@ -125,16 +129,4 @@ source("predict_choices.R")
 ```
 
 Our model utilized an $L_1$ (absolute value) penalty on the coefficient $\beta_1$, with the area under the curve (AUC) of the receiver operating characteristic (ROC) as the measure of model accuracy. We considered a unit "Significantly" predictive of choice behavior when both its mean AUC differed significantly from 0.5 (one-tailed $t$-test, $df$=4) and its $\beta_1$ coefficient remained nonzero in the model.\footnote{The first of these conditions requires the model to perform better than chance, the second that the model with spike counts included outperforms the baseline model (a constant $p$) on heldout data.} We excluded any unit with fewer than 100 trials, and found that `r ngood` of `r ntot` cells, or `r round(ngood/ntot, digits=2) * 100`%, significantly predicted upcoming choice. 
-
-# To do?:
-- ~~effects of cuing in model~~
-- ~~density plot of posteriors with units on top (via generated quantities in stan?)~~
-- are the same cells outliers in successive time periods?
-
-# Further models?
-- model social decision as a function of spike counts 
-    - ~~use glmnet for prediction~~
-- quantify OT effects
-    - on choice
-    - on gaze
 
