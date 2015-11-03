@@ -35,4 +35,5 @@ Analysis code is written in R and the modeling language [Stan](http://mc-stan.or
 
 - `predict_choices.R` uses a cross-validated model-fitting approach to predict prosocial choices from single-unit firing rates.
 
+## Results
 - `modeling_supplement.Rmd` is an R markdown file that generates plots and text describing the model and results.
