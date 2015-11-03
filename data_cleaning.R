@@ -70,5 +70,5 @@ countdata$subj <- monk_frame$subj[match(countdata$unit, monk_frame$units)]
 
 # save as R object
 outfile <- "countdata"
-save(file=paste(datadir, outfile, sep=""), list=c('countdata'))
+write.csv(countdata, file=paste(datadir, outfile, '.csv', sep=""), row.names=FALSE)
 
