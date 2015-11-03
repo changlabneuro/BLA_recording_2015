@@ -4,10 +4,10 @@
 library(rstan)
 
 # load original data
-load("data/countdata")
+countdata <- read.csv("data/countdata.csv")
 
 # load model samples
-fname <- "fitobj_targacq_multi_t_cued"
+fname <- "outputs/fitobj_targacq_multi_t_cued"
 load(fname)
 
 # calculate some useful quantities
