@@ -10,6 +10,9 @@ options(mc.cores = parallel::detectCores())
 # load data
 countdata <- read.csv("data/countdata.csv")
 
+# make sure cuing is treated as categorical
+countdata$cued <- as.factor(countdata$cued)
+
 # subsample for testing: uncomment the following line to test models
 # on a smaller subset of units
 # countdata <- countdata[as.integer(as.factor(countdata$unit)) < 10,]
