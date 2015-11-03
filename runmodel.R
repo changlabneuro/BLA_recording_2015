@@ -22,7 +22,8 @@ count <- countdata[[countvar]]
 unit <- as.integer(as.factor(countdata$unit))
 type <- as.integer(countdata$outcome)
 rwd <- countdata$reward
-X <- model.matrix(as.formula("~ -1 + outcome + outcome:reward"), data=countdata)
+# X <- model.matrix(as.formula("~ -1 + outcome + outcome:reward"), data=countdata)
+X <- model.matrix(as.formula("~ (-1 + outcome + outcome:reward):cued"), data=countdata)
 
 # get data ready for stan
 stan_dat <- list(N = length(count)[1],
