@@ -6,12 +6,13 @@ library(tidyr)
 library(GGally)
 
 # load data
-load("data/countdata")
+countdata <- read.csv("data/countdata.csv")
 
 # now fit a glm for each unit
 epoch <- "TargetAcquire_sp_count"
 form <- as.formula(paste(epoch, "~ reward"))
 family <- poisson(link="log")
+# family <- gaussian()  # uncomment to use linear link function
 
 coefmat <- countdata %>% group_by(unit, outcome) %>%
   do(coef=coef(glm(form, family=family, data= .))) %>%
