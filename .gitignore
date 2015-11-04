@@ -1,6 +1,9 @@
 # Data directory
 data/
 
+# Model results directory
+outputs
+
 # output files
 *.pdf
 *.rda
