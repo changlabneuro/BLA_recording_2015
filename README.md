@@ -1,5 +1,5 @@
 # chang_et_al_2015
-Models for Chang et al., **Neural mechanisms of social decision-making in the primate amygdala** (2015) (under review)
+Models for Chang et al., **Neural mechanisms of social decision-making in the primate amygdala** (2015) ([PNAS](http://www.pnas.org/content/early/2015/12/09/1514761112.abstract))
 
 ## Organization
 
